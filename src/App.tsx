@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { deleteTodoApi, getTodos, USER_ID } from './api/todos';
 import { TodoList } from './TodoList';
 import { Footer } from './Footer';
-import { Error } from './ErrorNotification';
+import { ErrorNotification } from './ErrorNotification';
 import { TodoForm } from './TodoForm';
 import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
@@ -47,6 +47,16 @@ export const App: React.FC = () => {
     setTodos(todos.filter(todo => !todo.completed));
   };
 
+  const handleDeleteTodo = async (id: number) => {
+    try {
+      await deleteTodoApi(id);
+      setTodos(todos.filter(todo => todo.id !== id));
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage('Unable to delete todo');
+    }
+  };
+
   const filteredTodos = todos.filter(todo => {
     switch (filter) {
       case FilterEnum.Active:
@@ -58,24 +68,17 @@ export const App: React.FC = () => {
     }
   });
 
-  const handleDeleteTodo = async (id: number) => {
-    try {
-      await deleteTodoApi(id);
-      setTodos(todos.filter(todo => todo.id !== id));
-      setErrorMessage(null);
-    } catch (error) {
-      setErrorMessage('Unable to delete todo');
-    }
-  };
-
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todo__content">
-        <TodoForm onAddTodo={handleAddTodo} />
+        <TodoForm onAddTodo={handleAddTodo} setErrorMessage={setErrorMessage} />
         <TodoList todos={filteredTodos} onDeleteTodo={handleDeleteTodo} />
-        <Error errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
+        <ErrorNotification
+          errorMessage={errorMessage}
+          setErrorMessage={setErrorMessage}
+        />
 
         {todos.length > 0 && (
           <Footer

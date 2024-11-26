@@ -8,12 +8,12 @@ interface Props {
 }
 
 export const TodoList: React.FC<Props> = ({ todos, onDeleteTodo }) => {
-  const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   const handleDelete = async (id: number) => {
-    setLoadingId(id);
+    setLoadingIds(prevIds => [...prevIds, id]);
     await onDeleteTodo(id);
-    setLoadingId(null);
+    setLoadingIds(prevIds => prevIds.filter(loadingId => loadingId !== id));
   };
 
   return (
@@ -23,7 +23,7 @@ export const TodoList: React.FC<Props> = ({ todos, onDeleteTodo }) => {
           key={todo.id}
           todo={todo}
           onDelete={handleDelete}
-          loadingId={loadingId}
+          loadingIds={loadingIds}
         />
       ))}
     </section>

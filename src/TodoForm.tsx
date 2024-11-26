@@ -3,22 +3,22 @@ import { Todo } from './types/Todo';
 
 interface Props {
   onAddTodo: (newTodo: Todo) => void;
+  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export const TodoForm: React.FC<Props> = ({ onAddTodo }) => {
+export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
   const [title, setTitle] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const intputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    intputRef.current?.focus();
+    inputRef.current?.focus();
   }, []);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (title.trim() === '') {
-      setError('Title should be not empty');
+      setErrorMessage('Title should be not empty');
 
       return;
     }
@@ -32,13 +32,13 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo }) => {
 
     onAddTodo(newTodo);
     setTitle('');
-    setError(null);
+    setErrorMessage(null);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <input
-        ref={intputRef}
+        ref={inputRef}
         data-cy="NewTodoField"
         type="text"
         className="todoapp__new-todo"
@@ -46,7 +46,6 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo }) => {
         value={title}
         onChange={e => setTitle(e.target.value)}
       />
-      {error && <div className="error">{error}</div>}
     </form>
   );
 };
