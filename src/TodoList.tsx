@@ -29,7 +29,6 @@ export const TodoList: React.FC<Props> = ({
           todo={tempTodo}
           onDelete={() => []}
           loadingIds={[]}
-          isTemporary
         />
       )}
       {todos.map(todo => (
