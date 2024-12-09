@@ -8,17 +8,24 @@ interface Props {
   todo: Todo;
   onDelete: (id: number) => void;
   loadingIds: number[];
+  isTemporary?: boolean;
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   onDelete,
-  loadingIds = [],
+  loadingIds,
+  isTemporary = false,
 }) => {
   const isLoading = Array.isArray(loadingIds) && loadingIds.includes(todo.id);
 
+  const shouldShowLoader = isLoading && !todo.completed;
+
   return (
-    <div className={`todo ${todo.completed ? 'completed' : ''}`} data-cy="Todo">
+    <div
+      className={`todo ${todo.completed ? 'completed' : ''} `}
+      data-cy="Todo"
+    >
       <label className="todo__status-label" htmlFor={`todo-${todo.id}`}>
         <input
           data-cy="TodoStatus"
@@ -41,13 +48,15 @@ export const TodoItem: React.FC<Props> = ({
       >
         x
       </button>
-      <div
-        data-cy="TodoLoader"
-        className={`modal overlay ${isLoading ? 'is-active' : ''}`}
-      >
-        <div className="modal-background has-background-white-ter" />
-        <div className="loader" />
-      </div>
+
+      {shouldShowLoader && (
+        <div data-cy="TodoLoader" className="modal overlay">
+          <div className="modal-background has-background-white-ter" />
+          <div className="loader" />
+        </div>
+      )}
+
+      {isTemporary && <div className="overlay" />}
     </div>
   );
 };

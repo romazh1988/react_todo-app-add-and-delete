@@ -4,10 +4,15 @@ import { Todo } from './types/Todo';
 
 interface Props {
   todos: Todo[];
+  tempTodo: Todo | null;
   onDeleteTodo: (id: number) => Promise<void>;
 }
 
-export const TodoList: React.FC<Props> = ({ todos, onDeleteTodo }) => {
+export const TodoList: React.FC<Props> = ({
+  todos,
+  tempTodo,
+  onDeleteTodo,
+}) => {
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   const handleDelete = async (id: number) => {
@@ -18,6 +23,15 @@ export const TodoList: React.FC<Props> = ({ todos, onDeleteTodo }) => {
 
   return (
     <section className="todoapp__main" data-cy="TodoList">
+      {tempTodo && (
+        <TodoItem
+          key={tempTodo.id}
+          todo={tempTodo}
+          onDelete={() => []}
+          loadingIds={[]}
+          isTemporary
+        />
+      )}
       {todos.map(todo => (
         <TodoItem
           key={todo.id}
