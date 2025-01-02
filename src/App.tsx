@@ -1,10 +1,10 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect } from 'react';
-import { addTodo, deleteTodoApi, getTodos, USER_ID } from './api/todos';
+import { deleteTodoApi, getTodos, USER_ID } from './api/todos';
 import { TodoList } from './TodoList';
 import { Footer } from './Footer';
-import { ErrorNotification } from './ErrorNotification';
+import { Error } from './ErrorNotification';
 import { TodoForm } from './TodoForm';
 import { Todo } from './types/Todo';
 import { UserWarning } from './UserWarning';
@@ -12,7 +12,6 @@ import { FilterEnum } from './types/filterEnum';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterEnum>(FilterEnum.All);
 
@@ -26,47 +25,22 @@ export const App: React.FC = () => {
     getTodos()
       .then(fetchedTodos => {
         setTodos(fetchedTodos);
-        setErrorMessage(null);
+        setErrorMessage('');
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');
       });
   }, []);
 
-  const handleAddTodo = async (title: string) => {
-    const tempId = Date.now();
-    const temporaryTodo: Todo = {
-      id: tempId,
-      userId: USER_ID,
-      title,
-      completed: false,
-    };
+  const handleAddTodo = (newTodo: Todo) => {
+    if (!newTodo.title) {
+      setErrorMessage('Title should not be empty');
 
-    setTempTodo(temporaryTodo);
-    setTodos(current => [...current, temporaryTodo]);
-
-    try {
-      const newTodo = await addTodo(title);
-
-      setTodos(current =>
-        current.map(todo => (todo.id === tempId ? newTodo : todo)),
-      );
-      setTempTodo(null);
-      setErrorMessage(null);
-    } catch (error) {
-      setErrorMessage('Unable to add a new todo');
-      setTodos(current => current.filter(todo => todo.id !== tempId));
+      return;
     }
-  };
 
-  const handleDeleteTodo = async (id: number) => {
-    try {
-      await deleteTodoApi(id);
-      setTodos(todos.filter(todo => todo.id !== id));
-      setErrorMessage(null);
-    } catch (error) {
-      setErrorMessage('Unable to delete todo');
-    }
+    setTodos([...todos, newTodo]);
+    setErrorMessage('');
   };
 
   const clearCompleted = () => {
@@ -84,22 +58,25 @@ export const App: React.FC = () => {
     }
   });
 
+  const handleDeleteTodo = async (id: number) => {
+    try {
+      await deleteTodoApi(id);
+      setTodos(todos.filter(todo => todo.id !== id));
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage('Unable to delete todo');
+    }
+  };
+
   return (
-    <div className={`todoapp ${errorMessage ? 'has-error' : ''}`}>
+    <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <div className="todo__content">
-        <TodoForm onAddTodo={handleAddTodo} setErrorMessage={setErrorMessage} />
-        <TodoList
-          todos={filteredTodos}
-          tempTodo={tempTodo}
-          onDeleteTodo={handleDeleteTodo}
-        />
-        <ErrorNotification
-          errorMessage={errorMessage}
-          setErrorMessage={setErrorMessage}
-        />
+      <Error errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
 
+      <div className="todo__content">
+        <TodoForm onAddTodo={handleAddTodo} />
+        <TodoList todos={filteredTodos} onDeleteTodo={handleDeleteTodo} />
         {todos.length > 0 && (
           <Footer
             todos={todos}

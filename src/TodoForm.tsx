@@ -1,51 +1,52 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Todo } from './types/Todo';
 
 interface Props {
-  onAddTodo: (title: string) => Promise<void>;
-  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
+  onAddTodo: (newTodo: Todo) => void;
 }
 
-export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
+export const TodoForm: React.FC<Props> = ({ onAddTodo }) => {
   const [title, setTitle] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const intputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
+    intputRef.current?.focus();
   }, []);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (title.trim() === '') {
-      setErrorMessage('Title should not be empty');
+      setError('Title should be not empty');
 
       return;
     }
 
-    setIsSubmitting(true);
-    try {
-      await onAddTodo(title.trim());
-      setTitle('');
-    } catch (error) {
-      setErrorMessage('Unable to add a todoo');
-    } finally {
-      setIsSubmitting(false);
-    }
+    const newTodo: Todo = {
+      id: Date.now(),
+      userId: 0,
+      title: title.trim(),
+      completed: false,
+    };
+
+    onAddTodo(newTodo);
+    setTitle('');
+    setError(null);
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <input
-        ref={inputRef}
+        ref={intputRef}
         data-cy="NewTodoField"
         type="text"
         className="todoapp__new-todo"
         placeholder="What needs to be done?"
         value={title}
         onChange={e => setTitle(e.target.value)}
-        disabled={isSubmitting}
       />
+      {error && <div className="error">{error}</div>}
     </form>
   );
 };
