@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect } from 'react';
-import { deleteTodoApi, getTodos, USER_ID } from './api/todos';
+import { deleteTodoApi, getTodos, USER_ID, addTodo } from './api/todos';
 import { TodoList } from './TodoList';
 import { Footer } from './Footer';
 import { Error } from './ErrorNotification';
@@ -32,15 +32,21 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleAddTodo = (newTodo: Todo) => {
-    if (!newTodo.title) {
+  const handleAddTodo = (title: string) => {
+    if (!title.trim()) {
       setErrorMessage('Title should not be empty');
 
       return;
     }
 
-    setTodos([...todos, newTodo]);
-    setErrorMessage('');
+    addTodo(title)
+      .then(newTodo => {
+        setTodos([...todos, newTodo]);
+        setErrorMessage('');
+      })
+      .catch(() => {
+        setErrorMessage('Unable to create todo');
+      });
   };
 
   const clearCompleted = () => {
@@ -72,11 +78,10 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <Error errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
-
       <div className="todo__content">
-        <TodoForm onAddTodo={handleAddTodo} />
         <TodoList todos={filteredTodos} onDeleteTodo={handleDeleteTodo} />
+        <TodoForm onAddTodo={handleAddTodo} setErrorMessage={setErrorMessage} />
+
         {todos.length > 0 && (
           <Footer
             todos={todos}
@@ -86,7 +91,10 @@ export const App: React.FC = () => {
           />
         )}
       </div>
+
       {!USER_ID && <UserWarning />}
+
+      <Error errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
     </div>
   );
 };

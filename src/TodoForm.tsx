@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Todo } from './types/Todo';
 
 interface Props {
-  onAddTodo: (newTodo: Todo) => void;
+  onAddTodo: (title: string) => void;
+  setErrorMessage: (message: string | null) => void;
 }
 
-export const TodoForm: React.FC<Props> = ({ onAddTodo }) => {
+export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
   const [title, setTitle] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const intputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -18,22 +18,22 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo }) => {
     event.preventDefault();
 
     if (title.trim() === '') {
-      setError('Title should be not empty');
+      setErrorMessage('Title should not be empty');
 
       return;
     }
 
-    const newTodo: Todo = {
-      id: Date.now(),
-      userId: 0,
-      title: title.trim(),
-      completed: false,
-    };
+    setIsSubmitting(true);
 
-    onAddTodo(newTodo);
-    setTitle('');
-    setError(null);
+    onAddTodo(title.trim());
+    setErrorMessage(null);
   };
+
+  useEffect(() => {
+    if (!isSubmitting) {
+      setTitle('');
+    }
+  }, [isSubmitting]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -45,8 +45,8 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo }) => {
         placeholder="What needs to be done?"
         value={title}
         onChange={e => setTitle(e.target.value)}
+        disabled={isSubmitting}
       />
-      {error && <div className="error">{error}</div>}
     </form>
   );
 };
