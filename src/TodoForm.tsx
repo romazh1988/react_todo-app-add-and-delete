@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 interface Props {
-  onAddTodo: (title: string) => void;
+  onAddTodo: (title: string) => Promise<void>;
   setErrorMessage: (message: string | null) => void;
 }
 
@@ -14,7 +14,7 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
     intputRef.current?.focus();
   }, []);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (title.trim() === '') {
@@ -24,9 +24,15 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
     }
 
     setIsSubmitting(true);
-
-    onAddTodo(title.trim());
     setErrorMessage(null);
+
+    try {
+      await onAddTodo(title.trim());
+    } catch (error) {
+      setErrorMessage('Error adding todo');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   useEffect(() => {

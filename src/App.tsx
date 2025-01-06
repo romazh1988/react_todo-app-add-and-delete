@@ -33,7 +33,7 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleAddTodo = (title: string) => {
+  const handleAddTodo = async (title: string): Promise<void> => {
     if (!title.trim()) {
       setErrorMessage('Title should not be empty');
 
