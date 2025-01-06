@@ -14,6 +14,7 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterEnum>(FilterEnum.All);
+  const [loadingTodo, setLoadingTodo] = useState<number | null>(null);
 
   useEffect(() => {
     if (!USER_ID) {
@@ -39,12 +40,29 @@ export const App: React.FC = () => {
       return;
     }
 
+    const tempTodo: Todo = {
+      id: Date.now(),
+      userId: USER_ID,
+      title: title.trim(),
+      completed: false,
+    };
+
+    setTodos(prevTodos => [...prevTodos, tempTodo]);
+    setLoadingTodo(tempTodo.id);
+
     addTodo(title)
       .then(newTodo => {
-        setTodos([...todos, newTodo]);
+        setTodos(prevTodos =>
+          prevTodos.map(todo => (todo.id === tempTodo.id ? newTodo : todo)),
+        );
+        setLoadingTodo(null);
         setErrorMessage('');
       })
       .catch(() => {
+        setTodos(prevTodos =>
+          prevTodos.filter(todo => todo.id !== tempTodo.id),
+        );
+        setLoadingTodo(null);
         setErrorMessage('Unable to create todo');
       });
   };
@@ -66,10 +84,12 @@ export const App: React.FC = () => {
 
   const handleDeleteTodo = async (id: number) => {
     try {
+      setLoadingTodo(id);
       await deleteTodoApi(id);
       setTodos(todos.filter(todo => todo.id !== id));
       setErrorMessage('');
     } catch (error) {
+      setLoadingTodo(null);
       setErrorMessage('Unable to delete todo');
     }
   };
@@ -79,7 +99,11 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todo__content">
-        <TodoList todos={filteredTodos} onDeleteTodo={handleDeleteTodo} />
+        <TodoList
+          todos={filteredTodos}
+          onDeleteTodo={handleDeleteTodo}
+          loadingTodo={loadingTodo}
+        />
         <TodoForm onAddTodo={handleAddTodo} setErrorMessage={setErrorMessage} />
 
         {todos.length > 0 && (

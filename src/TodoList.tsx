@@ -5,9 +5,14 @@ import { Todo } from './types/Todo';
 interface Props {
   todos: Todo[];
   onDeleteTodo: (id: number) => Promise<void>;
+  loadingTodo: number | null;
 }
 
-export const TodoList: React.FC<Props> = ({ todos, onDeleteTodo }) => {
+export const TodoList: React.FC<Props> = ({
+  todos,
+  onDeleteTodo,
+  loadingTodo,
+}) => {
   const handleDelete = async (id: number) => {
     await onDeleteTodo(id);
   };
@@ -19,7 +24,7 @@ export const TodoList: React.FC<Props> = ({ todos, onDeleteTodo }) => {
           key={todo.id}
           todo={todo}
           onDelete={handleDelete}
-          loadingIds={[]}
+          loadingIds={loadingTodo === todo.id ? [todo.id] : []}
         />
       ))}
     </section>
