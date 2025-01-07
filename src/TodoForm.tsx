@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 interface Props {
-  onAddTodo: (title: string) => Promise<void>;
+  onAddTodo: (
+    title: string,
+    setIsSubmitting: (value: boolean) => void,
+    resetForm: () => void,
+  ) => void;
   setErrorMessage: (message: string | null) => void;
 }
 
@@ -14,7 +18,14 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
     intputRef.current?.focus();
   }, []);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const resetForm = () => {
+    setTitle('');
+    setTimeout(() => {
+      intputRef.current?.focus();
+    }, 0);
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (title.trim() === '') {
@@ -24,22 +35,16 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
     }
 
     setIsSubmitting(true);
-    setErrorMessage(null);
 
-    try {
-      await onAddTodo(title.trim());
-    } catch (error) {
-      setErrorMessage('Error adding todo');
-    } finally {
-      setIsSubmitting(false);
-    }
+    onAddTodo(title.trim(), setIsSubmitting, resetForm);
+    // setErrorMessage(null);
   };
 
-  useEffect(() => {
-    if (!isSubmitting) {
-      setTitle('');
-    }
-  }, [isSubmitting]);
+  // useEffect(() => {
+  //   if (!isSubmitting) {
+  //     setTitle('');
+  //   }
+  // }, [isSubmitting]);
 
   return (
     <form onSubmit={handleSubmit}>

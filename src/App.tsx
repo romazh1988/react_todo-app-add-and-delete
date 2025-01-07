@@ -33,7 +33,11 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleAddTodo = async (title: string): Promise<void> => {
+  const handleAddTodo = (
+    title: string,
+    setIsSubmitting: (value: boolean) => void,
+    resetForm: () => void,
+  ) => {
     if (!title.trim()) {
       setErrorMessage('Title should not be empty');
 
@@ -57,6 +61,8 @@ export const App: React.FC = () => {
         );
         setLoadingTodo(null);
         setErrorMessage('');
+        setIsSubmitting(false);
+        resetForm();
       })
       .catch(() => {
         setTodos(prevTodos =>
@@ -64,6 +70,11 @@ export const App: React.FC = () => {
         );
         setLoadingTodo(null);
         setErrorMessage('Unable to create todo');
+        setIsSubmitting(false);
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+        resetForm();
       });
   };
 
@@ -99,12 +110,13 @@ export const App: React.FC = () => {
       <h1 className="todoapp__title">todos</h1>
 
       <div className="todo__content">
+        <TodoForm onAddTodo={handleAddTodo} setErrorMessage={setErrorMessage} />
+
         <TodoList
           todos={filteredTodos}
           onDeleteTodo={handleDeleteTodo}
           loadingTodo={loadingTodo}
         />
-        <TodoForm onAddTodo={handleAddTodo} setErrorMessage={setErrorMessage} />
 
         {todos.length > 0 && (
           <Footer
@@ -112,6 +124,7 @@ export const App: React.FC = () => {
             filter={filter}
             setFilter={setFilter}
             clearCompleted={clearCompleted}
+            loadingTodo={loadingTodo}
           />
         )}
       </div>

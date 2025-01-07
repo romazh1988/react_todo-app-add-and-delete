@@ -7,6 +7,7 @@ interface Props {
   filter: FilterEnum;
   setFilter: (filter: FilterEnum) => void;
   clearCompleted: () => void;
+  loadingTodo: number | null;
 }
 
 export const Footer: React.FC<Props> = ({
@@ -14,8 +15,11 @@ export const Footer: React.FC<Props> = ({
   filter,
   setFilter,
   clearCompleted,
+  loadingTodo,
 }) => {
-  const activeTodosCount = todos.filter(todo => !todo.completed).length;
+  const activeTodosCount = todos.filter(
+    todo => !todo.completed && todo.id !== loadingTodo,
+  ).length;
   const completedTodosCount = todos.filter(todo => todo.completed).length;
 
   return (
