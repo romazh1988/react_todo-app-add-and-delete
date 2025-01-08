@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { deleteTodoApi, getTodos, USER_ID, addTodo } from './api/todos';
 import { TodoList } from './TodoList';
 import { Footer } from './Footer';
@@ -26,56 +26,42 @@ export const App: React.FC = () => {
     getTodos()
       .then(fetchedTodos => {
         setTodos(fetchedTodos);
-        setErrorMessage('');
+        setErrorMessage(null);
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');
       });
   }, []);
 
-  const handleAddTodo = (
+  const handleAddTodo = async (
     title: string,
     setIsSubmitting: (value: boolean) => void,
     resetForm: () => void,
-  ) => {
-    if (!title.trim()) {
-      setErrorMessage('Title should not be empty');
-
-      return;
-    }
-
+  ): Promise<void> => {
     const tempTodo: Todo = {
       id: Date.now(),
       userId: USER_ID,
-      title: title.trim(),
+      title,
       completed: false,
     };
 
     setTodos(prevTodos => [...prevTodos, tempTodo]);
     setLoadingTodo(tempTodo.id);
 
-    addTodo(title)
-      .then(newTodo => {
-        setTodos(prevTodos =>
-          prevTodos.map(todo => (todo.id === tempTodo.id ? newTodo : todo)),
-        );
-        setLoadingTodo(null);
-        setErrorMessage('');
-        setIsSubmitting(false);
-        resetForm();
-      })
-      .catch(() => {
-        setTodos(prevTodos =>
-          prevTodos.filter(todo => todo.id !== tempTodo.id),
-        );
-        setLoadingTodo(null);
-        setErrorMessage('Unable to create todo');
-        setIsSubmitting(false);
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-        resetForm();
-      });
+    try {
+      const newTodo = await addTodo(title);
+
+      setTodos(prevTodos =>
+        prevTodos.map(todo => (todo.id === tempTodo.id ? newTodo : todo)),
+      );
+      resetForm();
+    } catch {
+      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== tempTodo.id));
+      setErrorMessage('Unable to add a todo');
+    } finally {
+      setLoadingTodo(null);
+      setIsSubmitting(false);
+    }
   };
 
   const clearCompleted = () => {
@@ -98,8 +84,8 @@ export const App: React.FC = () => {
       setLoadingTodo(id);
       await deleteTodoApi(id);
       setTodos(todos.filter(todo => todo.id !== id));
-      setErrorMessage('');
-    } catch (error) {
+      setErrorMessage(null);
+    } catch {
       setLoadingTodo(null);
       setErrorMessage('Unable to delete todo');
     }
@@ -109,9 +95,9 @@ export const App: React.FC = () => {
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
 
-      <div className="todo__content">
-        <TodoForm onAddTodo={handleAddTodo} setErrorMessage={setErrorMessage} />
+      <TodoForm onAddTodo={handleAddTodo} setErrorMessage={setErrorMessage} />
 
+      <div className="todo__content">
         <TodoList
           todos={filteredTodos}
           onDeleteTodo={handleDeleteTodo}

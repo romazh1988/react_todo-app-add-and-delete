@@ -3,13 +3,13 @@ import cn from 'classnames';
 
 interface Props {
   errorMessage: string | null;
-  setErrorMessage: React.Dispatch<React.SetStateAction<string | null>>;
+  setErrorMessage: (massege: string | null) => void;
 }
 
 export const Error: React.FC<Props> = ({ errorMessage, setErrorMessage }) => {
   useEffect(() => {
     if (errorMessage) {
-      setTimeout(() => setErrorMessage(''), 3000);
+      setTimeout(() => setErrorMessage(null), 3000);
     }
   }, [setErrorMessage, errorMessage]);
 
