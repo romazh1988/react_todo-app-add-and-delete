@@ -16,7 +16,7 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
 
   useEffect(() => {
     intputRef.current?.focus();
-  }, []);
+  }, [isSubmitting]);
 
   const resetForm = () => {
     setTitle('');
