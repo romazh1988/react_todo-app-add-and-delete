@@ -7,21 +7,23 @@ interface Props {
     resetForm: () => void,
   ) => void;
   setErrorMessage: (message: string | null) => void;
+  focusInputRef?: React.RefObject<HTMLInputElement>;
 }
 
 export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
   const [title, setTitle] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const intputRef = useRef<HTMLInputElement>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    intputRef.current?.focus();
-  }, [isSubmitting]);
+    inputRef.current?.focus();
+  }, [inputRef]);
 
   const resetForm = () => {
     setTitle('');
     setTimeout(() => {
-      intputRef.current?.focus();
+      inputRef.current?.focus();
     }, 0);
   };
 
@@ -49,7 +51,7 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
   return (
     <form onSubmit={handleSubmit}>
       <input
-        ref={intputRef}
+        ref={inputRef}
         data-cy="NewTodoField"
         type="text"
         className="todoapp__new-todo"

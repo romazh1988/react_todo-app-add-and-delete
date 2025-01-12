@@ -16,6 +16,14 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<FilterEnum>(FilterEnum.All);
   const [loadingTodo, setLoadingTodo] = useState<number | null>(null);
 
+  const focusInput = () => {
+    const inputElement = document.querySelector<HTMLInputElement>(
+      'input.todoapp__new-todo',
+    );
+
+    inputElement?.focus();
+  };
+
   useEffect(() => {
     if (!USER_ID) {
       setErrorMessage('USER_ID is not set');
@@ -27,6 +35,7 @@ export const App: React.FC = () => {
       .then(fetchedTodos => {
         setTodos(fetchedTodos);
         setErrorMessage(null);
+        focusInput();
       })
       .catch(() => {
         setErrorMessage('Unable to load todos');
@@ -61,11 +70,13 @@ export const App: React.FC = () => {
     } finally {
       setLoadingTodo(null);
       setIsSubmitting(false);
+      focusInput();
     }
   };
 
   const clearCompleted = () => {
     setTodos(todos.filter(todo => !todo.completed));
+    focusInput();
   };
 
   const filteredTodos = todos.filter(todo => {
@@ -84,11 +95,17 @@ export const App: React.FC = () => {
       setLoadingTodo(id);
       await deleteTodoApi(id);
       setTodos(todos.filter(todo => todo.id !== id));
-      setErrorMessage(null);
     } catch {
-      setLoadingTodo(null);
       setErrorMessage('Unable to delete todo');
+    } finally {
+      setLoadingTodo(null);
+      focusInput();
     }
+  };
+
+  const handleErrorClose = () => {
+    setErrorMessage(null);
+    focusInput();
   };
 
   return (
@@ -117,7 +134,7 @@ export const App: React.FC = () => {
 
       {!USER_ID && <UserWarning />}
 
-      <Error errorMessage={errorMessage} setErrorMessage={setErrorMessage} />
+      <Error errorMessage={errorMessage} setErrorMessage={handleErrorClose} />
     </div>
   );
 };
