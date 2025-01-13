@@ -95,8 +95,9 @@ export const App: React.FC = () => {
       setLoadingTodo(id);
       await deleteTodoApi(id);
       setTodos(todos.filter(todo => todo.id !== id));
-    } catch {
-      setErrorMessage('Unable to delete todo');
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage('Unable to delete a todo');
     } finally {
       setLoadingTodo(null);
       focusInput();

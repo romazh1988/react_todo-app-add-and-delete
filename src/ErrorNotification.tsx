@@ -9,8 +9,12 @@ interface Props {
 export const Error: React.FC<Props> = ({ errorMessage, setErrorMessage }) => {
   useEffect(() => {
     if (errorMessage) {
-      setTimeout(() => setErrorMessage(null), 3000);
+      const timer = setTimeout(() => setErrorMessage(null), 3000);
+
+      return () => clearTimeout(timer);
     }
+
+    return undefined;
   }, [setErrorMessage, errorMessage]);
 
   return (
