@@ -53,19 +53,18 @@ export const Footer: React.FC<Props> = ({
           onClick={() => setFilter(FilterEnum.Completed)}
           data-cy="FilterLinkCompleted"
         >
-          Complited
+          Completed
         </a>
       </nav>
 
-      {completedTodosCount > 0 && (
-        <button
-          className="clear-completed"
-          onClick={clearCompleted}
-          data-cy="ClearCompletedButton"
-        >
-          ClearCompleted
-        </button>
-      )}
+      <button
+        className="clear-completed"
+        onClick={clearCompleted}
+        data-cy="ClearCompletedButton"
+        disabled={completedTodosCount === 0}
+      >
+        Clear Completed
+      </button>
     </footer>
   );
 };

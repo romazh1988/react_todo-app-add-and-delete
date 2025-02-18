@@ -74,9 +74,36 @@ export const App: React.FC = () => {
     }
   };
 
-  const clearCompleted = () => {
-    setTodos(todos.filter(todo => !todo.completed));
-    focusInput();
+  const clearCompleted = async () => {
+    const completedTodo = todos.filter(todo => todo.completed);
+
+    if (completedTodo.length === 0) {
+      return;
+    }
+
+    try {
+      const results = await Promise.allSettled(
+        completedTodo.map(todo => deleteTodoApi(todo.id)),
+      );
+
+      const successfullyDeletedIds = completedTodo
+        .filter((_, index) => results[index].status === 'fulfilled')
+        .map(todo => todo.id);
+
+      setTodos(prevTodos =>
+        prevTodos.filter(todo => !successfullyDeletedIds.includes(todo.id)),
+      );
+
+      if (results.some(result => result.status === 'rejected')) {
+        setErrorMessage('Unable to delete some completed todos');
+      } else {
+        setErrorMessage(null);
+      }
+    } catch {
+      setErrorMessage('Something went wrong while deleting todos');
+    } finally {
+      focusInput();
+    }
   };
 
   const filteredTodos = todos.filter(todo => {
