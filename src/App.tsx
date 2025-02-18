@@ -118,12 +118,12 @@ export const App: React.FC = () => {
       );
 
       if (results.some(result => result.status === 'rejected')) {
-        setErrorMessage('Unable to delete some completed todos');
+        setErrorMessage('Unable to delete a todo');
       } else {
         setErrorMessage(null);
       }
     } catch {
-      setErrorMessage('Something went wrong while deleting todos');
+      setErrorMessage('Unable to delete a todo');
     } finally {
       focusInput();
     }
