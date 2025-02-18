@@ -1,7 +1,13 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
-import { deleteTodoApi, getTodos, USER_ID, addTodo } from './api/todos';
+import {
+  deleteTodoApi,
+  getTodos,
+  USER_ID,
+  addTodo,
+  toggleTodo,
+} from './api/todos';
 import { TodoList } from './TodoList';
 import { Footer } from './Footer';
 import { Error } from './ErrorNotification';
@@ -70,6 +76,23 @@ export const App: React.FC = () => {
     } finally {
       setLoadingTodo(null);
       setIsSubmitting(false);
+      focusInput();
+    }
+  };
+
+  const handleToggleTodo = async (id: number) => {
+    try {
+      setLoadingTodo(id);
+      const toggledTodo = await toggleTodo(todos.find(todo => todo.id === id)!);
+
+      setTodos(prevTodos =>
+        prevTodos.map(todo => (todo.id === id ? toggledTodo : todo)),
+      );
+      setErrorMessage(null);
+    } catch {
+      setErrorMessage('Unable to toggle todo');
+    } finally {
+      setLoadingTodo(null);
       focusInput();
     }
   };
@@ -146,6 +169,7 @@ export const App: React.FC = () => {
         <TodoList
           todos={filteredTodos}
           onDeleteTodo={handleDeleteTodo}
+          onToggleTodo={handleToggleTodo}
           loadingTodo={loadingTodo}
         />
 

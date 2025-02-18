@@ -7,12 +7,14 @@ import { Todo } from './types/Todo';
 interface Props {
   todo: Todo;
   onDelete: (id: number) => void;
+  onToggle: (id: number) => void;
   loadingIds: number[];
 }
 
 export const TodoItem: React.FC<Props> = ({
   todo,
   onDelete,
+  onToggle,
   loadingIds = [],
 }) => {
   const isLoading = Array.isArray(loadingIds) && loadingIds.includes(todo.id);
@@ -26,7 +28,7 @@ export const TodoItem: React.FC<Props> = ({
           className="todo__status"
           id={`todo-${todo.id}`}
           checked={todo.completed}
-          readOnly
+          onChange={() => onToggle(todo.id)}
         />
       </label>
       <span data-cy="TodoTitle" className="todo__title">
