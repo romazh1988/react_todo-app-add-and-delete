@@ -21,6 +21,7 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterEnum>(FilterEnum.All);
   const [loadingTodo, setLoadingTodo] = useState<number | null>(null);
+  const [loadingIds, setLoadingIds] = useState<number[]>([]);
 
   const focusInput = () => {
     const inputElement = document.querySelector<HTMLInputElement>(
@@ -98,20 +99,24 @@ export const App: React.FC = () => {
   };
 
   const clearCompleted = async () => {
-    const completedTodo = todos.filter(todo => todo.completed);
+    const completedTodos = todos.filter(todo => todo.completed);
 
-    if (completedTodo.length === 0) {
+    if (completedTodos.length === 0) {
       return;
     }
 
+    setLoadingIds(completedTodos.map(todo => todo.id));
+
     try {
       const results = await Promise.allSettled(
-        completedTodo.map(todo => deleteTodoApi(todo.id)),
+        completedTodos.map(todo => deleteTodoApi(todo.id)),
       );
 
-      const successfullyDeletedIds = completedTodo
-        .filter((_, index) => results[index].status === 'fulfilled')
-        .map(todo => todo.id);
+      const successfullyDeletedIds = completedTodos
+        .map((todo, index) =>
+          results[index].status === 'fulfilled' ? todo.id : null,
+        )
+        .filter((id): id is number => id !== null);
 
       setTodos(prevTodos =>
         prevTodos.filter(todo => !successfullyDeletedIds.includes(todo.id)),
@@ -125,6 +130,7 @@ export const App: React.FC = () => {
     } catch {
       setErrorMessage('Unable to delete a todo');
     } finally {
+      setLoadingIds([]);
       focusInput();
     }
   };
@@ -171,6 +177,7 @@ export const App: React.FC = () => {
           onDeleteTodo={handleDeleteTodo}
           onToggleTodo={handleToggleTodo}
           loadingTodo={loadingTodo}
+          loadingIds={loadingIds}
         />
 
         {todos.length > 0 && (

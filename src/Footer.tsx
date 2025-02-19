@@ -56,9 +56,8 @@ export const Footer: React.FC<Props> = ({
           Completed
         </a>
       </nav>
-
       <button
-        className="clear-completed"
+        className="todoapp__clear-completed"
         onClick={clearCompleted}
         data-cy="ClearCompletedButton"
         disabled={completedTodosCount === 0}

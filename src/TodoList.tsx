@@ -7,13 +7,15 @@ interface Props {
   onDeleteTodo: (id: number) => Promise<void>;
   onToggleTodo: (id: number) => void;
   loadingTodo: number | null;
+  loadingIds: number[];
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
   onDeleteTodo,
   onToggleTodo,
-  loadingTodo,
+  loadingIds,
+  // loadingTodo,
 }) => {
   const handleDelete = async (id: number) => {
     await onDeleteTodo(id);
@@ -31,7 +33,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           onDelete={handleDelete}
           onToggle={handleToggle}
-          loadingIds={loadingTodo === todo.id ? [todo.id] : []}
+          loadingIds={loadingIds}
         />
       ))}
     </section>

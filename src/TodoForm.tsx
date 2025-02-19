@@ -39,14 +39,7 @@ export const TodoForm: React.FC<Props> = ({ onAddTodo, setErrorMessage }) => {
     setIsSubmitting(true);
 
     onAddTodo(title.trim(), setIsSubmitting, resetForm);
-    // setErrorMessage(null);
   };
-
-  // useEffect(() => {
-  //   if (!isSubmitting) {
-  //     setTitle('');
-  //   }
-  // }, [isSubmitting]);
 
   return (
     <form onSubmit={handleSubmit}>

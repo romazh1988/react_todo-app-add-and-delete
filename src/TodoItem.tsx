@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { Todo } from './types/Todo';
+import classNames from 'classnames';
 
 interface Props {
   todo: Todo;
@@ -17,10 +18,11 @@ export const TodoItem: React.FC<Props> = ({
   onToggle,
   loadingIds = [],
 }) => {
-  const isLoading = Array.isArray(loadingIds) && loadingIds.includes(todo.id);
-
   return (
-    <div className={`todo ${todo.completed ? 'completed' : ''}`} data-cy="Todo">
+    <div
+      className={classNames('todo', { completed: todo.completed })}
+      data-cy="Todo"
+    >
       <label className="todo__status-label" htmlFor={`todo-${todo.id}`}>
         <input
           data-cy="TodoStatus"
@@ -39,13 +41,15 @@ export const TodoItem: React.FC<Props> = ({
         className="todo__remove"
         data-cy="TodoDelete"
         onClick={() => onDelete(todo.id)}
-        disabled={isLoading}
+        disabled={loadingIds.includes(todo.id)}
       >
         x
       </button>
       <div
         data-cy="TodoLoader"
-        className={`modal overlay ${isLoading ? 'is-active' : ''}`}
+        className={classNames('modal overlay', {
+          'is-active': loadingIds.includes(todo.id),
+        })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
