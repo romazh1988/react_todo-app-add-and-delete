@@ -62,7 +62,7 @@ export const App: React.FC = () => {
     };
 
     setTodos(prevTodos => [...prevTodos, tempTodo]);
-    setLoadingTodo(tempTodo.id);
+    setLoadingIds([tempTodo.id]);
 
     try {
       const newTodo = await addTodo(title);
