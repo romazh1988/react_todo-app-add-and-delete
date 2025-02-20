@@ -4,14 +4,15 @@ import { Todo } from './types/Todo';
 
 interface Props {
   todos: Todo[];
+  tempTodo: Todo | null;
   onDeleteTodo: (id: number) => Promise<void>;
   onToggleTodo: (id: number) => void;
-  loadingTodo: number | null;
   loadingIds: number[];
 }
 
 export const TodoList: React.FC<Props> = ({
   todos,
+  tempTodo,
   onDeleteTodo,
   onToggleTodo,
   loadingIds,
@@ -36,6 +37,16 @@ export const TodoList: React.FC<Props> = ({
           loadingIds={loadingIds}
         />
       ))}
+
+      {tempTodo && (
+        <TodoItem
+          key={tempTodo.id}
+          todo={tempTodo}
+          onDelete={handleDelete}
+          onToggle={handleToggle}
+          loadingIds={[tempTodo.id]}
+        />
+      )}
     </section>
   );
 };

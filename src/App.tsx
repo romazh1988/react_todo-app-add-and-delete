@@ -22,6 +22,7 @@ export const App: React.FC = () => {
   const [filter, setFilter] = useState<FilterEnum>(FilterEnum.All);
   const [loadingTodo, setLoadingTodo] = useState<number | null>(null);
   const [loadingIds, setLoadingIds] = useState<number[]>([]);
+  const [tempTodo, setTempTodo] = useState<Todo | null>(null);
 
   const focusInput = () => {
     const inputElement = document.querySelector<HTMLInputElement>(
@@ -54,25 +55,22 @@ export const App: React.FC = () => {
     setIsSubmitting: (value: boolean) => void,
     resetForm: () => void,
   ): Promise<void> => {
-    const tempTodo: Todo = {
+    const newtempTodo: Todo = {
       id: Date.now(),
       userId: USER_ID,
       title,
       completed: false,
     };
 
-    setTodos(prevTodos => [...prevTodos, tempTodo]);
-    setLoadingIds([tempTodo.id]);
+    setTempTodo(newtempTodo);
 
     try {
       const newTodo = await addTodo(title);
 
-      setTodos(prevTodos =>
-        prevTodos.map(todo => (todo.id === tempTodo.id ? newTodo : todo)),
-      );
+      setTodos(prevTodos => [...prevTodos, newTodo]);
       resetForm();
+      setErrorMessage(null);
     } catch {
-      setTodos(prevTodos => prevTodos.filter(todo => todo.id !== tempTodo.id));
       setErrorMessage('Unable to add a todo');
     } finally {
       setLoadingTodo(null);
@@ -174,9 +172,9 @@ export const App: React.FC = () => {
       <div className="todo__content">
         <TodoList
           todos={filteredTodos}
+          tempTodo={tempTodo}
           onDeleteTodo={handleDeleteTodo}
           onToggleTodo={handleToggleTodo}
-          loadingTodo={loadingTodo}
           loadingIds={loadingIds}
         />
 
