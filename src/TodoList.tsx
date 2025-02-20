@@ -16,7 +16,6 @@ export const TodoList: React.FC<Props> = ({
   onDeleteTodo,
   onToggleTodo,
   loadingIds,
-  // loadingTodo,
 }) => {
   const handleDelete = async (id: number) => {
     await onDeleteTodo(id);

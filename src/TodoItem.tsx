@@ -18,6 +18,8 @@ export const TodoItem: React.FC<Props> = ({
   onToggle,
   loadingIds = [],
 }) => {
+  const isLoading = loadingIds.includes(todo.id);
+
   return (
     <div
       className={classNames('todo', { completed: todo.completed })}
@@ -41,7 +43,7 @@ export const TodoItem: React.FC<Props> = ({
         className="todo__remove"
         data-cy="TodoDelete"
         onClick={() => onDelete(todo.id)}
-        disabled={loadingIds.includes(todo.id)}
+        disabled={isLoading}
       >
         x
       </button>

@@ -68,10 +68,12 @@ export const App: React.FC = () => {
       const newTodo = await addTodo(title);
 
       setTodos(prevTodos => [...prevTodos, newTodo]);
+      setTempTodo(null);
       resetForm();
       setErrorMessage(null);
     } catch {
       setErrorMessage('Unable to add a todo');
+      setTempTodo(null);
     } finally {
       setLoadingTodo(null);
       setIsSubmitting(false);
@@ -145,6 +147,7 @@ export const App: React.FC = () => {
   });
 
   const handleDeleteTodo = async (id: number) => {
+    setLoadingIds(prev => [...prev, id]);
     try {
       setLoadingTodo(id);
       await deleteTodoApi(id);
@@ -153,6 +156,7 @@ export const App: React.FC = () => {
     } catch (error) {
       setErrorMessage('Unable to delete a todo');
     } finally {
+      setLoadingIds(prev => prev.filter(loadingId => loadingId !== id));
       setLoadingTodo(null);
       focusInput();
     }
